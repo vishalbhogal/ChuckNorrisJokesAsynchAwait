@@ -6,8 +6,6 @@
 //
 
 import Foundation
-import RxSwift
-import RxRelay
 import Combine
 
 class GeeksJokesViewModel: ObservableObject {
@@ -15,20 +13,23 @@ class GeeksJokesViewModel: ObservableObject {
     @Published var joke: String = ""
     
     //Private Properties
-    private let disposeBag = DisposeBag()
     private var geeksJokeServiceAPI: GeeksJokeServiceAPIServiceable
-
     init(geeksJokeService: GeeksJokeServiceAPIServiceable) {
         geeksJokeServiceAPI = geeksJokeService
     }
     
     //Internal Methods
     func fetchJokeFromService() {
-       let fetchedResponse = geeksJokeServiceAPI.fetchData()
-        fetchedResponse.subscribe(onNext: { jokeResponse in
-            DispatchQueue.main.async {
-                self.joke = jokeResponse.joke
+        Task {
+            let fetchJoke = await geeksJokeServiceAPI.fetchData()
+            switch fetchJoke {
+            case .failure(let error):
+                print("API services are currently unavailable due to \(error.localizedDescription)")
+            case .success(let jokesResponse):
+                DispatchQueue.main.async {
+                    self.joke = jokesResponse.joke
+                }
             }
-        }).disposed(by: disposeBag)
+        }
     }
 }

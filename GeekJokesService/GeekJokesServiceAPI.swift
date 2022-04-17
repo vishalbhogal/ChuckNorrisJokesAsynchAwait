@@ -6,34 +6,37 @@
 //
 
 import Foundation
-import RxSwift
-import RxRelay
+
+enum APIErrors: Error {
+    case emptyURL
+    case corruptData
+    case unsuccesfulStatusCode
+}
 
 protocol GeeksJokeServiceAPIServiceable {
-    func fetchData() -> Observable<GeekJokesResponseModel>
+    func fetchData() async -> Result<GeekJokesResponseModel, Error>
 }
 
 class GeeksJokeServiceAPIService: GeeksJokeServiceAPIServiceable {
-    func fetchData() -> Observable<GeekJokesResponseModel> {
-        Observable.create { observer in
-            var urlRequest = URLRequest(url: URL(string: "https://geek-jokes.sameerkumar.website/api?format=json")!)
-            urlRequest.httpMethod = "GET"
-            let task = URLSession.shared.dataTask(with: urlRequest) { data, response, error in
-                if let error = error {
-                    observer.onError(error)
-                } else if let data = data {
-                    let decoder = JSONDecoder()
-                    do {
-                        let response = try decoder.decode(GeekJokesResponseModel.self, from: data)
-                        observer.onNext(response)
-                    }
-                    catch {
-                        print("UnableToDecode")
-                    }
-                }
-            }
-            task.resume()
-            return Disposables.create {}
+    func fetchData() async -> Result<GeekJokesResponseModel, Error> {
+        let url = URL(string: "https://geek-jokes.sameerkumar.website/api?format=json")
+        guard let url = url else {
+            return .failure(APIErrors.emptyURL)
         }
+    
+        let urlRequest = URLRequest(url: url)
+        do {
+            let (data, response) = try await URLSession.shared.data(for: urlRequest)
+            guard let httpResponse = response as? HTTPURLResponse,
+                  httpResponse.statusCode == 200 else {
+                return .failure(APIErrors.unsuccesfulStatusCode)
+            }
+            let geekJokeResponse = try JSONDecoder().decode(GeekJokesResponseModel.self, from: data)
+            return .success(geekJokeResponse)
+        }
+        catch {
+            return .failure(APIErrors.corruptData)
+        }
+        
     }
 }
