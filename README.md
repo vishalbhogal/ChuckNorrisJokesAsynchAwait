@@ -1,5 +1,6 @@
-# ChuckNorrisJokesAsynchAwait
-This SwiftUI iOS App Project uses Asynch &amp; Await to make network calls in MVVM structure. With the new async methods and await statements, we can define methods performing work asynchronously.
+# chucknorris-tca-swiftui-combine
+Chuck Norris facts iOS app implementation designed in TCA (Swift Composable Architecture) in SwiftUI using Combine Frameworks For API requests.
 
 # Screenshots
-<img width="200" alt="Login Page" src="https://github.com/vishalbhogal/GeeksJokeAsynchAwait/blob/main/Screenshots/appSS.png">
+<img width="200" alt="Home Page1" src="https://github.com/vishalbhogal/GeeksJokeAsynchAwait/blob/main/Screenshots/APPss1.png">
+<img width="200" alt="Home Page2" src="https://github.com/vishalbhogal/GeeksJokeAsynchAwait/blob/main/Screenshots/APPss2.png">
